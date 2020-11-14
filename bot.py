@@ -1,16 +1,27 @@
 # bot.py
 import os
-
+import random
+import logging
 import discord
 from dotenv import load_dotenv
+
+from discord.ext import commands
+
+logging.basicConfig(level=logging.INFO)
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 
-client = discord.Client()
+bot = commands.Bot(command_prefix='-')
 
-@client.event
+@bot.event
 async def on_ready():
-    print(f'{client.user} has connected to Discord!')
+    print(f'{bot.user} has connected to Discord!')
 
-client.run(TOKEN)
+@bot.command(name='hello', help='Responds with hello world')
+async def hello(ctx):
+    await ctx.send('Hello World!')
+    
+    
+
+bot.run(TOKEN)
