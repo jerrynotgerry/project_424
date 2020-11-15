@@ -24,9 +24,9 @@ async def hello(ctx):
 
 @bot.command(name='connect', help='Connects to your currently occupied voice channel')
 async def connect(ctx):
-    if ctx.author.channel == None:
+    if ctx.author.voice.channel == None:
         await ctx.send('You are not in any voice channel.')
         return
-    await ctx.author.channel.connect()
+    await ctx.author.voice.channel.connect()
 
 bot.run(TOKEN)
