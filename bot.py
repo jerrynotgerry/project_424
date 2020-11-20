@@ -35,12 +35,13 @@ async def connect(ctx):
         await ctx.author.voice.channel.connect()
 
 @bot.command(name='play', help='Plays an audio file')
-async def play(ctx, audio_file):
+async def play(ctx, audio_file, pitchFactor=1, speedFactor=1):
+    os.system("process.py {} {} {}".format(audio_file,pitchFactor,speedFactor))
     guild = ctx.guild
     existing_client = discord.utils.get(bot.voice_clients, guild=guild)
     if not existing_client:
         existing_client = connect(ctx)
-    audio_source = discord.FFmpegOpusAudio(audio_file)
+    audio_source = discord.FFmpegOpusAudio("out.mp3")
     await existing_client.play(audio_source)
     
 bot.run(TOKEN)
