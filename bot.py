@@ -35,7 +35,7 @@ async def connect(ctx):
         await ctx.author.voice.channel.connect()
 
 @bot.command(name='play', help='Plays an audio file')
-async def play(ctx, audio_file, pitchFactor=1, speedFactor=1):
+async def play(ctx, audio_file, pitchFactor=1.0, speedFactor=1.0):
     os.system("process.py {} {} {}".format(audio_file,pitchFactor,speedFactor))
     guild = ctx.guild
     existing_client = discord.utils.get(bot.voice_clients, guild=guild)
