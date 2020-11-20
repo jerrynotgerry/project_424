@@ -14,6 +14,11 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 
 bot = commands.Bot(command_prefix='-')
 
+discord.opus.load_opus(".\opus.dll")
+if not discord.opus.is_loaded():
+    print("Opus not loaded")
+    exit()
+
 @bot.event
 async def on_ready():
     print(f'{bot.user} has connected to Discord!')
@@ -24,9 +29,18 @@ async def hello(ctx):
 
 @bot.command(name='connect', help='Connects to your currently occupied voice channel')
 async def connect(ctx):
-    if ctx.author.voice.channel == None:
+    if ctx.author.voice == None:
         await ctx.send('You are not in any voice channel.')
-        return
-    await ctx.author.voice.channel.connect()
+    else:
+        await ctx.author.voice.channel.connect()
 
+@bot.command(name='play', help='Plays an audio file')
+async def play(ctx, audio_file):
+    guild = ctx.guild
+    existing_client = discord.utils.get(bot.voice_clients, guild=guild)
+    if not existing_client:
+        existing_client = connect(ctx)
+    audio_source = discord.FFmpegOpusAudio(audio_file)
+    await existing_client.play(audio_source)
+    
 bot.run(TOKEN)
