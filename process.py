@@ -54,13 +54,33 @@ def ProcessAudio(inputFilename,path,outputFilename,pitchFactor=1,speedFactor=1):
     os.system(" ffmpeg -y -i {} -af {}{} out.mp3".format(inputFilename,pitchProcessString,speedProcessString))
     #os.startfile("out.mp3")
 
+def GetPitchString(pitchFactor=1.0):
+    # Generate pitchProcessString
+    pitchProcessString = ("asetrate=44100*{}".format(pitchFactor))
+    pitchTempoOverhead = (1/pitchFactor)
+    while(pitchTempoOverhead < 0.5):
+        pitchProcessString = pitchProcessString + ",atempo={}".format(0.5)
+        pitchTempoOverhead = pitchTempoOverhead/0.5
+    pitchProcessString = pitchProcessString + ",atempo={}".format(pitchTempoOverhead)
+    return pitchProcessString
+
+def GetTempoString(speedFactor=1.0):
+    # Generate speedProcessString
+    speedProcessString = ""
+    speedTempoOverhead = speedFactor
+    while(speedTempoOverhead < 0.5):
+        speedProcessString = speedProcessString + ",atempo={}".format(0.5)
+        speedTempoOverhead = speedTempoOverhead/0.5
+    speedProcessString = speedProcessString + ",atempo={}".format(speedTempoOverhead)
+    return speedProcessString
+
 # Execute the script
-path = "C:\\Users\\qkunder\\Desktop\\ffmpeg\\bin"
-outputFilename = "out"
-pitchFactor = .5
-speedFactor =4
-inputFilename = str(sys.argv[1])
-if (len(sys.argv)==4):
-    pitchFactor = float(sys.argv[2])
-    speedFactor = float(sys.argv[3]) 
-ProcessAudio(inputFilename,path,outputFilename,pitchFactor,speedFactor)
+# path = "C:\\Users\\qkunder\\Desktop\\ffmpeg\\bin"
+# outputFilename = "out"
+# pitchFactor = .5
+# speedFactor =4
+# inputFilename = str(sys.argv[1])
+# if (len(sys.argv)==4):
+#     pitchFactor = float(sys.argv[2])
+#     speedFactor = float(sys.argv[3]) 
+# ProcessAudio(inputFilename,path,outputFilename,pitchFactor,speedFactor)

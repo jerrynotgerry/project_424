@@ -4,7 +4,7 @@ import random
 import logging
 import discord
 from dotenv import load_dotenv
-
+from process import *
 from discord.ext import commands
 
 logging.basicConfig(level=logging.INFO)
@@ -31,17 +31,54 @@ async def hello(ctx):
 async def connect(ctx):
     if ctx.author.voice == None:
         await ctx.send('You are not in any voice channel.')
+        return None
+    client = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+    if client:
+        await client.move_to(ctx.author.voice.channel)
+        return client
     else:
-        await ctx.author.voice.channel.connect()
+        return await ctx.author.voice.channel.connect()
 
 @bot.command(name='play', help='Plays an audio file')
-async def play(ctx, audio_file, pitchFactor=1.0, speedFactor=1.0):
-    os.system("process.py {} {} {}".format(audio_file,pitchFactor,speedFactor))
+async def play(ctx, input_obj, pitchFactor=1.0, speedFactor=1.0):
+    # os.system("process.py {} {} {}".format(audio_file,pitchFactor,speedFactor))
     guild = ctx.guild
-    existing_client = discord.utils.get(bot.voice_clients, guild=guild)
+    if not bot.voice_clients:
+        existing_client = await connect(ctx)
+    else:
+        existing_client = discord.utils.get(bot.voice_clients, guild=guild)
+        if not existing_client:
+            existing_client = await connect(ctx)
+
     if not existing_client:
-        existing_client = connect(ctx)
-    audio_source = discord.FFmpegOpusAudio("out.mp3")
-    await existing_client.play(audio_source)
+        return None
+    # generate ffmpeg options string
+    pitchProcessString = GetPitchString(pitchFactor)
+    speedProcessString = GetTempoString(speedFactor)
+    audio_source = discord.FFmpegOpusAudio(input_obj, options="-af {}{}".format(pitchProcessString,speedProcessString))
+    existing_client.play(audio_source)
+    
+@bot.command(name='disconnect', help='Disconnects from voice')
+async def disconnect(ctx):
+    target = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+    if target:
+        await target.disconnect()
+
+@bot.command(name='pause', help='Pauses current playback')
+async def pause(ctx):
+    target = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+    if target and target.is_playing():
+        target.pause()
+
+@bot.command(name='resume', help='Resumes playback if paused')
+async def pause(ctx):
+    target = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+    if target and target.is_paused():
+        target.resume()
+
+@bot.command(name='stop', help='Stops playback entirely')
+async def stop(ctx):
+    target = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+    target.stop()
     
 bot.run(TOKEN)
