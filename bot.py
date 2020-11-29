@@ -59,7 +59,7 @@ async def play(ctx, input_obj, pitchFactor=1.0, speedFactor=1.0):
     existing_client.play(audio_source)
 
 @bot.command(name='playYoutube', help='Plays an audio from YouTube')
-async def play(ctx, youtubeLink, pitchFactor=1.0, speedFactor=1.0):
+async def playYoutube(ctx, youtubeLink, pitchFactor=1.0, speedFactor=1.0):
     guild = ctx.guild
     if not bot.voice_clients:
         existing_client = await connect(ctx)
@@ -71,12 +71,11 @@ async def play(ctx, youtubeLink, pitchFactor=1.0, speedFactor=1.0):
     if not existing_client:
         return None
     # Download youtube audio
-    os.system("youtube-dl --extract-audio --audio-format mp3 --output ""youtubeIn.%(ext)s"" {}".format(youtubeLink))
-    os.system("process.py {} {} {}".format("youtubeIn.mp3",pitchFactor,speedFactor))
+    os.system("youtube-dl -q --extract-audio --audio-format mp3 --output ""youtubeIn.%(ext)s"" {}".format(youtubeLink))
     pitchProcessString = GetPitchString(pitchFactor)
     speedProcessString = GetTempoString(speedFactor)
     audio_source = discord.FFmpegOpusAudio("youtubeIn.mp3", options="-af {}{}".format(pitchProcessString,speedProcessString))
-    await existing_client.play(audio_source)
+    existing_client.play(audio_source)
     
 @bot.command(name='disconnect', help='Disconnects from voice')
 async def disconnect(ctx):
